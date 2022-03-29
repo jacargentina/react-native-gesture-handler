@@ -6,8 +6,9 @@ import {
   PanGestureHandler,
   PanGestureHandlerStateChangeEvent,
   State,
+  Swipeable,
+  RectButton,
 } from 'react-native-gesture-handler';
-
 import { isFabric, isHermes } from './utils';
 import { COLORS } from './colors';
 
@@ -150,6 +151,41 @@ export function AnimatedEventDemo({
   );
 }
 
+const styles1 = StyleSheet.create({
+  actionText: {
+    color: 'white',
+    fontSize: 16,
+    backgroundColor: 'transparent',
+    padding: 10,
+  },
+  rightAction: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+});
+
+const SwipeableRightAction = (props: {
+  text: string;
+  color: string;
+  x: number;
+  progress: any;
+}) => {
+  const { text, color, x, progress } = props;
+  const trans = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [x, 0],
+  });
+
+  return (
+    <Animated.View style={{ flex: 1, transform: [{ translateX: trans }] }}>
+      <RectButton style={[styles1.rightAction, { backgroundColor: color }]}>
+        <Text style={styles1.actionText}>{text}</Text>
+      </RectButton>
+    </Animated.View>
+  );
+};
+
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
@@ -158,6 +194,36 @@ export default function HomeScreen() {
         This example app runs on {isHermes() ? 'Hermes' : 'JSC'} with Fabric{' '}
         {isFabric() ? 'enabled' : 'disabled'}.
       </Text>
+      <Swipeable
+        friction={2}
+        rightThreshold={30}
+        renderRightActions={(progress, dragX) => {
+          return (
+            <View style={{ width: 200, flexDirection: 'row' }}>
+              <SwipeableRightAction
+                color={'blue'}
+                progress={progress}
+                text="ACTION 1"
+                x={200}
+              />
+              <SwipeableRightAction
+                color={'red'}
+                progress={progress}
+                text="ACTION 2"
+                x={100}
+              />
+            </View>
+          );
+        }}>
+        <Text
+          style={{
+            padding: 5,
+            backgroundColor: 'red',
+            ...styles.text,
+          }}>
+          Swipe me to left
+        </Text>
+      </Swipeable>
       <GestureDetectorDemo color={COLORS.NAVY} />
       <ManualGestureDemo color={COLORS.KINDA_RED} />
       <PanGestureHandlerDemo color={COLORS.YELLOW} />
